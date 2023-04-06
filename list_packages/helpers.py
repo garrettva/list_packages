@@ -4,6 +4,7 @@ from subprocess import check_output
 import time
 import os
 import pkg_resources
+import re
 from shutil import which
 if which("apt-cache") != None:
     import apt
@@ -24,7 +25,11 @@ class InstalledRpms:
                 package = {}
                 dt_string = ""
                 diced = x.split()
-                package["name"], package["version"] = diced.pop(0).split("-", 1)
+                split_up = re.split('-(\d+)', diced.pop(0), maxsplit = 1)
+                package["name"] = split_up.pop(0)
+                ver_str = ''.join(split_up)
+                package["version"] = re.split('\.\D', ver_str)[0]
+                ver_str
                 dt_string = " ".join(diced)
                 dt = datetime.strptime(dt_string, "%a %d %b %Y %I:%M:%S %p %Z")
                 package["type"] = "rpm"
