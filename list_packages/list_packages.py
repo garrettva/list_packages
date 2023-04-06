@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from list_packages.helpers import InstalledRpms
 from list_packages.helpers import InstalledModules
+from list_packages.helpers import InstalledDebs
+from shutil import which
 import json
 
 
@@ -16,15 +18,11 @@ class CombinedList:
             csv_str += ",".join(package.values()) + "\n"
         return csv_str
 
+
     def fetch(self):
         """Returns selected lists combined"""
         output_list = []
         output_format = ""
-        my_rpms = InstalledRpms()
-        my_modules = InstalledModules()
-
-        if self.rpms_only == True or self.python_only == True:
-            self.all = False
         if self.json == True:
             self.csv = False
             output_format = "json"
@@ -32,16 +30,14 @@ class CombinedList:
             if self.json != False:
                 raise Exception("CSV and JSON output is mutually exclusive.")
             output_format = "csv"
-        if self.rpms_only != False:
-            if self.python_only != False or self.all != False:
-                raise Exception("The rpms_only and python_only arguments are mutually exclusive.")
-            output_list = my_rpms.list_rpms()
-        if self.python_only != False:
-            if self.rpms_only != False or self.all != False:
-                raise Exception("The rpms_only and python_only arguments are mutually exclusive.")
-            output_list = my_modules.list_modules()
-        if self.rpms_only == False and self.python_only == False:
-            output_list = my_rpms.list_rpms() + my_modules.list_modules()
+        my_modules = InstalledModules()
+        output_list = my_modules.list_modules()
+        if which('rpm'):
+            my_rpms = InstalledRpms()
+            output_list += my_rpms.list_rpms()
+        if which('apt-cache'):
+            my_debs = InstalledDebs()
+            output_list += my_debs.list_debs()        
         if output_format == "json":
             str_out = json.dumps(output_list, indent=4)
         else:

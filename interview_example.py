@@ -13,19 +13,6 @@ def main():
     parser.add_argument(
         "-c", "--csv", action="store_true", help="Output in CSV format", default=True
     )
-    parser.add_argument(
-        "-r", "--rpms_only", action="store_true", help="Show only RPM packages"
-    )
-    parser.add_argument(
-        "-p", "--python_only", action="store_true", help="Show only Python modules"
-    )
-    parser.add_argument(
-        "-a",
-        "--all",
-        action="store_true",
-        help="Show both RPM Packages and Python modules",
-        default=True,
-    )
     parser.add_argument("-O", "--output_file", type=str, help="Write results to file")
     parser.add_argument(
         "-s",

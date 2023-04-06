@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-import pip
 from datetime import datetime
 from subprocess import check_output
 import time
 import os
+import pkg_resources
+from shutil import which
+if which("apt-cache") != None:
+    import apt
 
 
 class InstalledRpms:
@@ -28,13 +31,43 @@ class InstalledRpms:
                 package["installed_on"] = str(dt)
                 packages.append(package)
         return packages
+    
+
+class InstalledDebs:
+    """Returns list of installed Debian packages with timestamps"""
+    def list_debs(self):
+        cache = apt.Cache()
+        dir_path = r'/var/lib/dpkg/info/'
+        packages = []
+        for mypkg in cache:
+            package = {}
+            if mypkg.is_installed:
+                if os.path.isfile("/var/lib/dpkg/info/" + mypkg.name + ":" + mypkg.architecture() + ".list"):
+                    list_file = "/var/lib/dpkg/info/" + mypkg.name + ":" + mypkg.architecture() + ".list"
+                elif os.path.isfile("/var/lib/dpkg/info/" + mypkg.name + '.list'):
+                    list_file = "/var/lib/dpkg/info/" + mypkg.name + ".list"
+                else:
+                    raise Exception('Could not find .list file')
+                timestamp = str(
+                    datetime.strptime(
+                    time.ctime(os.path.getctime(list_file)),
+                        "%a %b %d %H:%M:%S %Y",
+                ))
+                name_version = mypkg.installed
+                package["name"], package["version"] = str(name_version).split("=")
+                package["type"] = "deb"
+                package["installed_on"] = timestamp
+                packages.append(package)
+        return packages
+        
 
 
 class InstalledModules:
     def list_modules(self):
         """Returns list of installed python modules with timestamps"""
         python_modules = []
-        for package in pip.get_installed_distributions():
+        dists = [d for d in pkg_resources.working_set]
+        for package in dists:
             python_module = {}
             python_module["name"], python_module["version"] = str(package).split(" ")
             python_module["type"] = "python_module"
