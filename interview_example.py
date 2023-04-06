@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 import argparse
 from list_packages import CombinedList
-
 
 def main():
     parser = argparse.ArgumentParser(
