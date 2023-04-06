@@ -1,5 +1,5 @@
 # list_packages
-Lists RPM/Deb packages and Python modules installed on a system, along with their installation date. Output may be in CSV (default) or JSON.
+Lists RPM/Deb packages and Python modules installed on a system, along with their version and installation date. Output may be in CSV (default) or JSON.
 
 ## Installation:
 `$ sudo python3 setup.py`
